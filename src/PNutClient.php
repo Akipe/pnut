@@ -42,10 +42,17 @@ class PNutClient
         return $this;
     }
 
+    /**
+     * @throws Exception\Ssl\AlreadySslModeException
+     * @throws Exception\Feature\FeatureNotSupportedException
+     * @throws Exception\Feature\FeatureNotConfiguredException
+     * @throws Exception\Socket\UnableToConnectSocketException
+     * @throws Exception\Ssl\SslHandShakeException
+     */
     public function connect(
         string $serverAddress,
         int $serverPort = PNutStream::DEFAULT_SERVER_PORT,
-    )
+    ): PNutRequest
     {
         $this->stream = new PNutStream(
             $serverAddress,

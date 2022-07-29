@@ -2,6 +2,11 @@
 
 namespace PNut\Stream;
 
+use PNut\Exception\Feature\FeatureNotConfiguredException;
+use PNut\Exception\Feature\FeatureNotSupportedException;
+use PNut\Exception\Socket\UnableToConnectSocketException;
+use PNut\Exception\Ssl\AlreadySslModeException;
+use PNut\Exception\Ssl\SslHandShakeException;
 use PNut\Request\PNutRequest;
 
 /**
@@ -21,6 +26,13 @@ class PNutStream
     private ?string $protocolVersion;
     private ?string $serverVersion;
 
+    /**
+     * @throws UnableToConnectSocketException
+     * @throws FeatureNotConfiguredException
+     * @throws AlreadySslModeException
+     * @throws FeatureNotSupportedException
+     * @throws SslHandShakeException
+     */
     public function __construct(
         private readonly string $address,
         private readonly int    $port = PNutStream::DEFAULT_SERVER_PORT,
@@ -52,9 +64,7 @@ class PNutStream
         );
 
         if (!$this->stream) {
-            throw new \Exception(
-                "Error $this->errorCode : $this->errorCode"
-            );
+            throw new UnableToConnectSocketException($this->errorMsg, $this->errorCode);
         }
 
         if ($tryEncryption || $forceEncryption) {
@@ -126,15 +136,19 @@ class PNutStream
         return $this->serverVersion;
     }
 
-    private function trySetEncryption(bool $force): PNutStream
+    /**
+     * @throws SslHandShakeException
+     * @throws FeatureNotSupportedException
+     * @throws FeatureNotConfiguredException
+     * @throws AlreadySslModeException
+     * @throws \Exception
+     */
+    private function trySetEncryption(bool $force): void
     {
         $response = $this
             ->writeRequest("STARTTLS")
-            ->getResonse()
+            ->getResponse()
         ;
-
-        // ok if response "OK STARTTLS"
-        // error if response "ERR FEATURE-NOT-CONFIGURED"
 
         if (str_contains($response, "OK STARTTLS")) {
             $isHandShakeSuccess = stream_socket_enable_crypto(
@@ -145,23 +159,29 @@ class PNutStream
 
             if(!$isHandShakeSuccess) {
                 fclose($this->stream);
-                throw new \Exception(
-                    "Error to decode tls data"
-                );
+                throw new SslHandShakeException();
             }
 
             $this->isEncrypt = true;
 
-            return $this;
+            return;
         }
 
         if ($force) {
+            if (str_contains($response, FeatureNotSupportedException::PROTOCOL_MESSAGE)) {
+                throw new FeatureNotSupportedException();
+            }
+            if (str_contains($response, FeatureNotConfiguredException::PROTOCOL_MESSAGE)) {
+                throw new FeatureNotConfiguredException();
+            }
+            if (str_contains($response, AlreadySslModeException::PROTOCOL_MESSAGE)) {
+                throw new AlreadySslModeException();
+            }
+
             throw new \Exception("The stream is not encrypted");
         }
 
         $this->isEncrypt = false;
-
-        return $this;
     }
 
     private function removeLastReturnLine(string $response): string
