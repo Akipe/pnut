@@ -31,6 +31,6 @@ class PNutResponse extends PNutBaseResponse
         return
             str_contains($response, "Network UPS Tools upsd") &&
             str_contains($response, "http://www.networkupstools.org/"
-        );
+            );
     }
 }

@@ -29,11 +29,11 @@ class PNutStream
      *
      * Documentation can be found at https://networkupstools.org/docs/developer-guide.chunked/ar01s09.html
      *
-     * @param string $address       The server address (IP address or hostname).
-     * @param int $port             The port number where NUT listen.
-     * @param bool $tryEncryption   If we try to connect with encryption (TLS). It will fallback to unencrypted.
+     * @param string $address The server address (IP address or hostname).
+     * @param int $port The port number where NUT listen.
+     * @param bool $tryEncryption If we try to connect with encryption (TLS). It will fallback to unencrypted.
      * @param bool $forceEncryption Force encryption, so if it can't, it will generate an exception.
-     * @param int $timeout          Time in seconds before timeout.
+     * @param int $timeout Time in seconds before timeout.
      *
      * @throws AlreadySslModeException
      * @throws FeatureNotConfiguredException
@@ -44,8 +44,8 @@ class PNutStream
     public function __construct(
         private readonly string $address,
         private readonly int    $port = PNutStream::DEFAULT_SERVER_PORT,
-        bool $tryEncryption = true,
-        bool $forceEncryption = false,
+        bool                    $tryEncryption = true,
+        bool                    $forceEncryption = false,
         private int             $timeout = PNutStream::DEFAULT_TIMEOUT,
     )
     {
@@ -55,7 +55,7 @@ class PNutStream
         $this->protocolVersion = null;
         $this->serverVersion = null;
 
-        $uri = "tcp://".$this->address.":".$this->port;
+        $uri = "tcp://" . $this->address . ":" . $this->port;
 
         $context = $this->GetConfiguredStreamContext(
             $tryEncryption,
@@ -82,93 +82,17 @@ class PNutStream
         $this->setMetadata();
     }
 
-    /**
-     * Get the encryption status (TLS) of the connection.
-     *
-     * @return bool The status of the encryption.
-     */
-    public function isEncrypt(): bool
+    private function GetConfiguredStreamContext(bool $tryEncryption, bool $forceEncryption): mixed
     {
-        return $this->isEncrypt;
-    }
+        $context = stream_context_create();
 
-    /**
-     * Send a command to the NUT server.
-     *
-     * A list of commands can be found at https://networkupstools.org/docs/developer-guide.chunked/ar01s09.html
-     *
-     * To receive the response, use the "receive()" method.
-     *
-     * @param string $command   The command send to NUT.
-     * @return $this            The current socket stream instance.
-     */
-    public function send(string $command): PNutStream
-    {
-        fwrite(
-            $this->stream,
-            "{$command}\n"
-        );
-
-        return $this;
-    }
-
-    /**
-     * Get the response of the NUT server, after a "send()" request.
-     *
-     * @param bool $removeProtocolMessages  To get or remove unneeded protocol message (by default disable).
-     * @return string                       The message send by the NUT server.
-     */
-    public function receive(bool $removeProtocolMessages = true): string
-    {
-        $response = "";
-        $thereIsStillData = false;
-
-        do
-        {
-            $line = trim(fgets($this->stream, 128));
-
-            if ($this->isEndResponse($line)) {
-                return $response;
-            }
-
-            if (
-                !$removeProtocolMessages ||
-                $this->isNotContainProtocolsMsg($line)
-            ) {
-                $response .= $line . "\n";
-            }
-
-            if (str_contains($line, "BEGIN LIST")) {
-                $thereIsStillData = true;
-            }
-
-            if (str_contains($line, "END LIST")) {
-                $thereIsStillData = false;
-            }
+        if ($tryEncryption || $forceEncryption) {
+            \stream_context_set_option($context, 'ssl', 'allow_self_signed', false);
+            \stream_context_set_option($context, 'ssl', 'verify_peer', false);
+            \stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
         }
-        while($thereIsStillData);
 
-        return $this->removeLastReturnLine($response);
-    }
-
-    /**
-     * Get the version of the NUT protocol used by the server.
-     *
-     * @return string   The protocol version.
-     */
-    public function getProtocolVersion(): string
-    {
-        return $this->protocolVersion;
-    }
-
-    /**
-     * Get the version of the NUT server application.
-     *
-     * @return string   The NUT server application version.
-     */
-    public function getServerVersion(): string
-    {
-        return $this->serverVersion;
+        return $context;
     }
 
     /**
@@ -178,7 +102,7 @@ class PNutStream
      *
      * If needed it can be configured like forcing encryption end generating exception if it can't connect.
      *
-     * @param bool $force   Generate exception if the client can't encrypt the connection.
+     * @param bool $force Generate exception if the client can't encrypt the connection.
      * @return void
      *
      * @throws AlreadySslModeException
@@ -190,8 +114,7 @@ class PNutStream
     {
         $response = $this
             ->send("STARTTLS")
-            ->receive()
-        ;
+            ->receive();
 
         if (str_contains($response, "OK STARTTLS")) {
             $isHandShakeSuccess = stream_socket_enable_crypto(
@@ -200,7 +123,7 @@ class PNutStream
                 STREAM_CRYPTO_METHOD_ANY_CLIENT
             );
 
-            if(!$isHandShakeSuccess) {
+            if (!$isHandShakeSuccess) {
                 fclose($this->stream);
                 throw new SslHandShakeException();
             }
@@ -227,12 +150,41 @@ class PNutStream
         $this->isEncrypt = false;
     }
 
-    private function removeLastReturnLine(string $response): string
+    /**
+     * Get the response of the NUT server, after a "send()" request.
+     *
+     * @param bool $removeProtocolMessages To get or remove unneeded protocol message (by default disable).
+     * @return string                       The message send by the NUT server.
+     */
+    public function receive(bool $removeProtocolMessages = true): string
     {
-        if (str_ends_with($response, "\n")) {
-            $response = substr_replace($response, "", -1);
-        }
-        return $response;
+        $response = "";
+        $thereIsStillData = false;
+
+        do {
+            $line = trim(fgets($this->stream, 128));
+
+            if ($this->isEndResponse($line)) {
+                return $response;
+            }
+
+            if (
+                !$removeProtocolMessages ||
+                $this->isNotContainProtocolsMsg($line)
+            ) {
+                $response .= $line . "\n";
+            }
+
+            if (str_contains($line, "BEGIN LIST")) {
+                $thereIsStillData = true;
+            }
+
+            if (str_contains($line, "END LIST")) {
+                $thereIsStillData = false;
+            }
+        } while ($thereIsStillData);
+
+        return $this->removeLastReturnLine($response);
     }
 
     private function isEndResponse(string $line): bool
@@ -244,8 +196,35 @@ class PNutStream
     {
         return
             !str_contains($line, "BEGIN LIST") &&
-            !str_contains($line, "END LIST")
-        ;
+            !str_contains($line, "END LIST");
+    }
+
+    private function removeLastReturnLine(string $response): string
+    {
+        if (str_ends_with($response, "\n")) {
+            $response = substr_replace($response, "", -1);
+        }
+        return $response;
+    }
+
+    /**
+     * Send a command to the NUT server.
+     *
+     * A list of commands can be found at https://networkupstools.org/docs/developer-guide.chunked/ar01s09.html
+     *
+     * To receive the response, use the "receive()" method.
+     *
+     * @param string $command The command send to NUT.
+     * @return $this            The current socket stream instance.
+     */
+    public function send(string $command): PNutStream
+    {
+        fwrite(
+            $this->stream,
+            "{$command}\n"
+        );
+
+        return $this;
     }
 
     private function setMetadata(): void
@@ -254,8 +233,7 @@ class PNutStream
 
         $this->protocolVersion = $request
             ->getProtocolVersion()
-            ->getResponse()
-        ;
+            ->getResponse();
 
         $serverInfo = explode(
             " ",
@@ -266,16 +244,33 @@ class PNutStream
         $this->serverVersion = $serverInfo[array_key_last($serverInfo)];
     }
 
-    private function GetConfiguredStreamContext(bool $tryEncryption, bool $forceEncryption): mixed
+    /**
+     * Get the version of the NUT protocol used by the server.
+     *
+     * @return string   The protocol version.
+     */
+    public function getProtocolVersion(): string
     {
-        $context = stream_context_create();
+        return $this->protocolVersion;
+    }
 
-        if ($tryEncryption || $forceEncryption) {
-            \stream_context_set_option($context, 'ssl', 'allow_self_signed', false);
-            \stream_context_set_option($context, 'ssl', 'verify_peer', false);
-            \stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
-        }
+    /**
+     * Get the encryption status (TLS) of the connection.
+     *
+     * @return bool The status of the encryption.
+     */
+    public function isEncrypt(): bool
+    {
+        return $this->isEncrypt;
+    }
 
-        return $context;
+    /**
+     * Get the version of the NUT server application.
+     *
+     * @return string   The NUT server application version.
+     */
+    public function getServerVersion(): string
+    {
+        return $this->serverVersion;
     }
 }

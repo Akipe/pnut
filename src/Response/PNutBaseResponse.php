@@ -11,7 +11,8 @@ class PNutBaseResponse
     public function __construct(
         public readonly PNutStream $stream,
     )
-    {}
+    {
+    }
 
     public function getRawResponseArray(bool $isRemoveProtocolMessages = true): array
     {
@@ -41,6 +42,12 @@ class PNutBaseResponse
         return $this->getLastWord($responseWithoutValue);
     }
 
+    private function getLastWord(string $sentence): string
+    {
+        $sentenceWords = explode(" ", $sentence);
+        return $sentenceWords[array_key_last($sentenceWords)];
+    }
+
     protected function getValueQuoted(string $response): ?string
     {
         $matches = array();
@@ -56,16 +63,10 @@ class PNutBaseResponse
         return null;
     }
 
+    // *********
+
     protected function getValueUnquoted(string $response): ?string
     {
         return $this->getLastWord($response);
-    }
-
-    // *********
-
-    private function getLastWord(string $sentence): string
-    {
-        $sentenceWords = explode(" ", $sentence);
-        return $sentenceWords[array_key_last($sentenceWords)];
     }
 }

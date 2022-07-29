@@ -11,7 +11,8 @@ class PNutRequest
     public function __construct(
         public readonly PNutStream $stream,
     )
-    {}
+    {
+    }
 
     public function getProtocolVersion(): PNutResponse
     {

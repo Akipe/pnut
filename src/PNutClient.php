@@ -27,7 +27,7 @@ class PNutClient
     /**
      * Set timeout for the connection to the server.
      *
-     * @param int $value    Time in seconds before exit.
+     * @param int $value Time in seconds before exit.
      * @return $this        The current instance.
      */
     public function setTimeout(int $value): PNutClient
@@ -39,7 +39,7 @@ class PNutClient
 
     /**
      * To disable encryption for the connection to the server.
-     * By default, PNut try to connect with TLS.
+     * Otherwise, by default the client try to connect with encryption.
      *
      * @return $this    The current instance.
      */
@@ -67,10 +67,10 @@ class PNutClient
     /**
      * Initialize the connection to the server.
      * By default, it will try first to connect with encryption,
-     * and then connect without if it failed.
+     * and then fall back to unencrypted if the server is not configure.
      *
      * @param string $serverAddress Address where the server is (for example an IP address or hostname).
-     * @param int $serverPort       Port of where NUT server listen (default 3493).
+     * @param int $serverPort Port of where NUT server listen (default 3493).
      * @return PNutClient           The current instance.
      *
      * @throws Exception\Feature\FeatureNotConfiguredException
@@ -81,7 +81,7 @@ class PNutClient
      */
     public function connect(
         string $serverAddress,
-        int $serverPort = PNutStream::DEFAULT_SERVER_PORT,
+        int    $serverPort = PNutStream::DEFAULT_SERVER_PORT,
     ): PNutClient
     {
         $this->stream = new PNutStream(
