@@ -1,30 +1,23 @@
 <?php
 
-/**
- *  Protocol Network UPS Tools (port 3493)
- *  https://networkupstools.org/docs/developer-guide.chunked/ar01s09.html
- */
-
 namespace PNut;
+
+use PNut\Request\PNutRequest;
+use PNut\Stream\PNutStream;
 
 class PNutClient
 {
-    public const DEFAULT_SERVER_PORT = 3493;
-    public const DEFAULT_TIMEOUT = 30;
+    private ?PNutStream $stream;
+    private bool $tryEncryption;
+    private bool $forceEncryption;
+    private ?int $timeout;
 
-    private mixed $stream;
-    private ?int $errorCode;
-    private ?string $errorMsg;
-
-    public function __construct(
-        private string $serverAddress,
-        private int $serverPort = PNutClient::DEFAULT_SERVER_PORT,
-        private int $timeout = PNutClient::DEFAULT_TIMEOUT
-    )
+    public function __construct()
     {
+        $this->tryEncryption = true;
+        $this->forceEncryption = false;
         $this->stream = null;
-        $this->errorCode = null;
-        $this->errorMsg = null;
+        $this->timeout = PNutStream::DEFAULT_TIMEOUT;
     }
 
     public function setTimeout(int $value): PNutClient
@@ -34,25 +27,56 @@ class PNutClient
         return $this;
     }
 
-    public function connect(): PNutClientRequest
+    public function disableEncryption(): PNutClient
     {
-        $stream = fsockopen(
-            $this->serverAddress,
-            $this->serverPort,
-            $this->errorCode,
-            $this->errorMsg,
-            $this->timeout
-        );
+        $this->tryEncryption = false;
+        $this->forceEncryption = false;
 
-        if (!$stream) {
-            throw new \Exception(
-                "Error {$this->errorCode} : {$this->errorCode}"
-            );
-        }
-
-        $this->stream = $stream;
-
-        return new PNutClientRequest($this->stream);
+        return $this;
     }
 
+    public function forceEncryption(): PNutClient
+    {
+        $this->forceEncryption = true;
+
+        return $this;
+    }
+
+    public function connect(
+        string $serverAddress,
+        int $serverPort = PNutStream::DEFAULT_SERVER_PORT,
+    )
+    {
+        $this->stream = new PNutStream(
+            $serverAddress,
+            $serverPort,
+            $this->tryEncryption,
+            $this->forceEncryption,
+            $this->timeout,
+        );
+
+        /*if ($this->tryEncryption || $this->forceEncryption) {
+            $this->stream->tryEncrypt();
+
+            if ($this->forceEncryption && !$this->stream->isEncrypt()) {
+                throw new \Exception("The stream is not encrypt");
+            }
+        }*/
+
+        return new PNutRequest(
+            $this->stream
+        );
+    }
+
+    public function stream(): PNutStream
+    {
+        return $this->stream;
+    }
+
+    public function request(): PNutRequest
+    {
+        return new PNutRequest(
+            $this->stream
+        );
+    }
 }
