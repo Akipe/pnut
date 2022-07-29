@@ -9,11 +9,6 @@ use PNut\Exception\Ssl\AlreadySslModeException;
 use PNut\Exception\Ssl\SslHandShakeException;
 use PNut\Request\PNutRequest;
 
-/**
- *  Protocol Network UPS Tools (port 3493)
- *  https://networkupstools.org/docs/developer-guide.chunked/ar01s09.html
- */
-
 class PNutStream
 {
     public const DEFAULT_SERVER_PORT = 3493;
@@ -27,11 +22,24 @@ class PNutStream
     private ?string $serverVersion;
 
     /**
-     * @throws UnableToConnectSocketException
-     * @throws FeatureNotConfiguredException
+     * A socket stream class who manage the connection to the Network Ups Tools server.
+     *
+     * It allows to make low-level commands like send and receive messages.
+     * It is used by PNutRequest & PNutResponse for communicating to the server with the procotol of Network UPS Tools.
+     *
+     * Documentation can be found at https://networkupstools.org/docs/developer-guide.chunked/ar01s09.html
+     *
+     * @param string $address       The server address (IP address or hostname).
+     * @param int $port             The port number where NUT listen.
+     * @param bool $tryEncryption   If we try to connect with encryption (TLS). It will fallback to unencrypted.
+     * @param bool $forceEncryption Force encryption, so if it can't, it will generate an exception.
+     * @param int $timeout          Time in seconds before timeout.
+     *
      * @throws AlreadySslModeException
+     * @throws FeatureNotConfiguredException
      * @throws FeatureNotSupportedException
      * @throws SslHandShakeException
+     * @throws UnableToConnectSocketException
      */
     public function __construct(
         private readonly string $address,
@@ -74,14 +82,27 @@ class PNutStream
         $this->setMetadata();
     }
 
+    /**
+     * Get the encryption status (TLS) of the connection.
+     *
+     * @return bool The status of the encryption.
+     */
     public function isEncrypt(): bool
     {
         return $this->isEncrypt;
     }
 
-    public function writeRequest(
-        string $command,
-    ): PNutStream
+    /**
+     * Send a command to the NUT server.
+     *
+     * A list of commands can be found at https://networkupstools.org/docs/developer-guide.chunked/ar01s09.html
+     *
+     * To receive the response, use the "receive()" method.
+     *
+     * @param string $command   The command send to NUT.
+     * @return $this            The current socket stream instance.
+     */
+    public function send(string $command): PNutStream
     {
         fwrite(
             $this->stream,
@@ -91,9 +112,13 @@ class PNutStream
         return $this;
     }
 
-    public function getResponse(
-        bool $removeProtocolMessages = true,
-    ): string
+    /**
+     * Get the response of the NUT server, after a "send()" request.
+     *
+     * @param bool $removeProtocolMessages  To get or remove unneeded protocol message (by default disable).
+     * @return string                       The message send by the NUT server.
+     */
+    public function receive(bool $removeProtocolMessages = true): string
     {
         $response = "";
         $thereIsStillData = false;
@@ -126,28 +151,46 @@ class PNutStream
         return $this->removeLastReturnLine($response);
     }
 
+    /**
+     * Get the version of the NUT protocol used by the server.
+     *
+     * @return string   The protocol version.
+     */
     public function getProtocolVersion(): string
     {
         return $this->protocolVersion;
     }
 
+    /**
+     * Get the version of the NUT server application.
+     *
+     * @return string   The NUT server application version.
+     */
     public function getServerVersion(): string
     {
         return $this->serverVersion;
     }
 
     /**
-     * @throws SslHandShakeException
-     * @throws FeatureNotSupportedException
-     * @throws FeatureNotConfiguredException
+     * It will try to enable TLS encryption for the connection, so all requests & responses will be encrypted.
+     *
+     * By default, it will fall back to unencrypted if the server is not configure.
+     *
+     * If needed it can be configured like forcing encryption end generating exception if it can't connect.
+     *
+     * @param bool $force   Generate exception if the client can't encrypt the connection.
+     * @return void
+     *
      * @throws AlreadySslModeException
-     * @throws \Exception
+     * @throws FeatureNotConfiguredException
+     * @throws FeatureNotSupportedException
+     * @throws SslHandShakeException
      */
     private function trySetEncryption(bool $force): void
     {
         $response = $this
-            ->writeRequest("STARTTLS")
-            ->getResponse()
+            ->send("STARTTLS")
+            ->receive()
         ;
 
         if (str_contains($response, "OK STARTTLS")) {
@@ -223,10 +266,7 @@ class PNutStream
         $this->serverVersion = $serverInfo[array_key_last($serverInfo)];
     }
 
-    private function GetConfiguredStreamContext(
-        bool $tryEncryption,
-        bool $forceEncryption
-    ): mixed
+    private function GetConfiguredStreamContext(bool $tryEncryption, bool $forceEncryption): mixed
     {
         $context = stream_context_create();
 

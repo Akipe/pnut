@@ -6,16 +6,12 @@ use PNut\Stream\PNutStream;
 
 class PNutResponse extends PNutBaseResponse
 {
-    public function __construct(
-        PNutStream $stream,
-    )
+    public function __construct(PNutStream $stream)
     {
         parent::__construct($stream);
     }
 
-    public function getResponse(
-        bool $removeProtocolMessage = true,
-    ): string
+    public function getResponse(bool $removeProtocolMessage = true): string
     {
         $response = parent::getRawResponse($removeProtocolMessage);
 

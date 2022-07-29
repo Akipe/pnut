@@ -23,7 +23,7 @@ class PNutBaseResponse
 
     public function getRawResponse(bool $removeProtocolMessages = true): string
     {
-        return $this->stream->getResponse($removeProtocolMessages);
+        return $this->stream->receive($removeProtocolMessages);
     }
 
     // *********

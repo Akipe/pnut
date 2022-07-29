@@ -4,16 +4,12 @@ namespace PNut\Response;
 
 class PNutResponseList extends PNutBaseResponse
 {
-    public function __construct(
-        mixed $stream,
-    )
+    public function __construct(mixed $stream)
     {
         parent::__construct($stream);
     }
 
-    public function getResponse(
-        bool $removeProtocolMessage = true,
-    ): array
+    public function getResponse(bool $removeProtocolMessage = true): array
     {
         $result = array();
         $responseArray = parent::getRawResponseArray($removeProtocolMessage);
