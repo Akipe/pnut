@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PNut;
 
@@ -54,14 +54,6 @@ class PNutClient
             $this->forceEncryption,
             $this->timeout,
         );
-
-        /*if ($this->tryEncryption || $this->forceEncryption) {
-            $this->stream->tryEncrypt();
-
-            if ($this->forceEncryption && !$this->stream->isEncrypt()) {
-                throw new \Exception("The stream is not encrypt");
-            }
-        }*/
 
         return new PNutRequest(
             $this->stream

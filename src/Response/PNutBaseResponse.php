@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PNut\Response;
 
@@ -23,7 +23,7 @@ class PNutBaseResponse
 
     public function getRawResponse(bool $removeProtocolMessages = true): string
     {
-        return $this->stream->getResonse($removeProtocolMessages);
+        return $this->stream->getResponse($removeProtocolMessages);
     }
 
     // *********

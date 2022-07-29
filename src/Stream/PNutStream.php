@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace PNut\Stream;
 
@@ -29,19 +29,18 @@ class PNutStream
         private int             $timeout = PNutStream::DEFAULT_TIMEOUT,
     )
     {
+        $this->errorCode = 0;
+        $this->errorMsg = "";
         $this->isEncrypt = false;
         $this->protocolVersion = null;
         $this->serverVersion = null;
 
         $uri = "tcp://".$this->address.":".$this->port;
 
-        $context = stream_context_create();
-
-        //if ($this->tryEncryption || $this->forceEncryption) {
-        \stream_context_set_option($context, 'ssl', 'allow_self_signed', false);
-        \stream_context_set_option($context, 'ssl', 'verify_peer', false);
-        \stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
-        //}
+        $context = $this->GetConfiguredStreamContext(
+            $tryEncryption,
+            $forceEncryption
+        );
 
         $this->stream = stream_socket_client(
             $uri,
@@ -82,7 +81,7 @@ class PNutStream
         return $this;
     }
 
-    public function getResonse(
+    public function getResponse(
         bool $removeProtocolMessages = true,
     ): string
     {
@@ -202,5 +201,21 @@ class PNutStream
                 ->getResponse()
         );
         $this->serverVersion = $serverInfo[array_key_last($serverInfo)];
+    }
+
+    private function GetConfiguredStreamContext(
+        bool $tryEncryption,
+        bool $forceEncryption
+    ): mixed
+    {
+        $context = stream_context_create();
+
+        if ($tryEncryption || $forceEncryption) {
+            \stream_context_set_option($context, 'ssl', 'allow_self_signed', false);
+            \stream_context_set_option($context, 'ssl', 'verify_peer', false);
+            \stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
+        }
+
+        return $context;
     }
 }
