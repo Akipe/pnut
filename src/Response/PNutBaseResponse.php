@@ -7,11 +7,13 @@ use PNut\Stream\PNutStream;
 class PNutBaseResponse
 {
     private const RULE_BETWEEN_QUOTE = '/"([^"]+)"/';
+    private string $rawResponse;
 
     public function __construct(
         public readonly PNutStream $stream,
     )
     {
+        $this->rawResponse = $this->stream->receive(true);
     }
 
     public function getRawResponseArray(bool $isRemoveProtocolMessages = true): array
@@ -24,7 +26,7 @@ class PNutBaseResponse
 
     public function getRawResponse(bool $removeProtocolMessages = true): string
     {
-        return $this->stream->receive($removeProtocolMessages);
+        return $this->rawResponse;
     }
 
     // *********

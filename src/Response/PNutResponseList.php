@@ -2,7 +2,7 @@
 
 namespace PNut\Response;
 
-class PNutResponseList extends PNutBaseResponse
+class PNutResponseList extends PNutBaseResponse implements IPNutResponse
 {
     public function __construct(mixed $stream)
     {

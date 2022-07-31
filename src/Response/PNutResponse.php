@@ -4,7 +4,7 @@ namespace PNut\Response;
 
 use PNut\Stream\PNutStream;
 
-class PNutResponse extends PNutBaseResponse
+class PNutResponse extends PNutBaseResponse implements IPNutResponse
 {
     public function __construct(PNutStream $stream)
     {

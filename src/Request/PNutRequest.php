@@ -2,7 +2,10 @@
 
 namespace PNut\Request;
 
+use PNut\Exception\Ups\UnknownUpsException;
+use PNut\Exception\Variable\VariableNotSupportedException;
 use PNut\Response\PNutResponse;
+use PNut\Response\PNutResponseError;
 use PNut\Response\PNutResponseList;
 use PNut\Stream\PNutStream;
 
@@ -41,58 +44,106 @@ class PNutRequest
         return new PNutResponseList($this->stream);
     }
 
+    /**
+     * @throws UnknownUpsException
+     */
     public function getNumberLogins(string $ups): PNutResponse
     {
         $this->stream->send(
             "GET NUMLOGINS {$ups}"
         );
 
-        return new PNutResponse($this->stream);
+        $response = new PNutResponse($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+
+        return $response;
     }
 
+    /**
+     * @throws UnknownUpsException
+     */
     public function getUpsDescription(string $ups): PNutResponse
     {
         $this->stream->send(
             "GET UPSDESC {$ups}"
         );
 
-        return new PNutResponse($this->stream);
+        $response = new PNutResponse($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+
+        return $response;
     }
 
+    /**
+     * @throws VariableNotSupportedException
+     * @throws UnknownUpsException
+     */
     public function getVariable(string $ups, string $name): PNutResponse
     {
         $this->stream->send(
             "GET VAR {$ups} {$name}"
         );
 
-        return new PNutResponse($this->stream);
+        $response = new PNutResponse($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+        PNutResponseError::hasResponseVariableNotSupported($response);
+
+        return $response;
     }
 
+    /**
+     * @throws VariableNotSupportedException
+     * @throws UnknownUpsException
+     */
     public function getVariableType(string $ups, string $name): PNutResponse
     {
         $this->stream->send(
             "GET TYPE {$ups} {$name}"
         );
 
-        return new PNutResponse($this->stream);
+        $response = new PNutResponse($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+        PNutResponseError::hasResponseVariableNotSupported($response);
+
+        return $response;
     }
 
+    /**
+     * @throws VariableNotSupportedException
+     * @throws UnknownUpsException
+     */
     public function getVariableDescription(string $ups, string $name): PNutResponse
     {
         $this->stream->send(
             "GET DESC {$ups} {$name}"
         );
 
-        return new PNutResponse($this->stream);
+        $response = new PNutResponse($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+        PNutResponseError::hasResponseVariableNotSupported($response);
+
+        return $response;
     }
 
+    /**
+     * @throws UnknownUpsException
+     */
     public function getUpsCommandDescription(string $ups, string $command): PNutResponse
     {
         $this->stream->send(
             "GET CMDDESC {$ups} {$command}"
         );
 
-        return new PNutResponse($this->stream);
+        $response = new PNutResponse($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+
+        return $response;
     }
 
     // todo: there is 2 value quoted
@@ -114,49 +165,86 @@ class PNutRequest
         return new PNutResponseList($this->stream);
     }
 
+    /**
+     * @throws UnknownUpsException
+     */
     public function getAllVariables(string $ups): PNutResponseList
     {
         $this->stream->send(
             "LIST VAR {$ups}"
         );
 
-        return new PNutResponseList($this->stream);
+        $response = new PNutResponseList($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+
+        return $response;
     }
 
+    /**
+     * @throws UnknownUpsException
+     */
     public function getAllEditableVariables(string $ups): PNutResponseList
     {
         $this->stream->send(
             "LIST RW {$ups}"
         );
 
-        return new PNutResponseList($this->stream);
+        $response = new PNutResponseList($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+
+        return $response;
     }
 
+    /**
+     * @throws UnknownUpsException
+     */
     public function getAllUpsCommands(string $ups): PNutResponseList
     {
         $this->stream->send(
             "LIST CMD {$ups}"
         );
 
-        return new PNutResponseList($this->stream);
+        $response = new PNutResponseList($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+
+        return $response;
     }
 
+    /**
+     * @throws VariableNotSupportedException
+     * @throws UnknownUpsException
+     */
     public function getVariableEnumeration(string $ups, string $name): PNutResponseList
     {
         $this->stream->send(
             "LIST ENUM {$ups} {$name}"
         );
 
-        return new PNutResponseList($this->stream);
+        $response = new PNutResponseList($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+        PNutResponseError::hasResponseVariableNotSupported($response);
+
+        return $response;
     }
 
+    /**
+     * @throws UnknownUpsException
+     */
     public function getClients(string $ups): PNutResponseList
     {
         $this->stream->send(
             "LIST CLIENT {$ups}"
         );
 
-        return new PNutResponseList($this->stream);
+        $response = new PNutResponseList($this->stream);
+
+        PNutResponseError::hasResponseUnknownUps($response);
+
+        return $response;
     }
 
     public function logout(): PNutResponse

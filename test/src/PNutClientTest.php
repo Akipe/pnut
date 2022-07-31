@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+use PNut\Exception\Ups\UnknownUpsException;
+use PNut\Exception\Variable\VariableNotSupportedException;
 use PNut\PNutClient;
 
 final class PNutClientTest extends TestCase
@@ -73,7 +75,7 @@ final class PNutClientTest extends TestCase
         $client->request()->logout();
     }
 
-    public function testRequestSingleVariables(): void
+    public function testRequestSingleVariable(): void
     {
         $client = new PNutClient();
         $client
@@ -91,6 +93,42 @@ final class PNutClientTest extends TestCase
         $this->assertEquals("01.01.00", $upsFirmware);
 
         $client->request()->logout();
+    }
+
+    public function testRequestSingleVariableUnknownUps(): void
+    {
+        $this->expectException(UnknownUpsException::class);
+
+        $client = new PNutClient();
+        $client
+            ->setTimeout(PNutClientTest::TIMEOUT)
+            ->connect(PNutClientTest::ADDRESS);
+
+        $client
+            ->request()
+            ->getVariable(
+                "ups_not_existing",
+                "ups.firmware"
+            )
+            ->getResponse();
+    }
+
+    public function testRequestSingleVariableUnknownVariable(): void
+    {
+        $this->expectException(VariableNotSupportedException::class);
+
+        $client = new PNutClient();
+        $client
+            ->setTimeout(PNutClientTest::TIMEOUT)
+            ->connect(PNutClientTest::ADDRESS);
+
+        $client
+            ->request()
+            ->getVariable(
+                "dummy-sim",
+                "variable_not_existing"
+            )
+            ->getResponse();
     }
 
     public function testRequestAllVariables(): void
