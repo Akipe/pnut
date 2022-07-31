@@ -4,7 +4,7 @@ services:
   nut_test:
     container_name: nut_test
     build:
-      context: ./app
+      context: ./
     ports:
       - "3493:3493"
     tty: true

@@ -19,5 +19,10 @@
   "autoload": {
     "psr-4": {
       "PNut\\": "src/"}
+  },
+  "scripts": {
+    "prepare-test": "sudo docker-compose -f ./test/app/docker-compose.yml up -d",
+    "test": "phpunit ./test/src",
+    "stop-test": "sudo docker-compose -f ./test/app/docker-compose.yml down"
   }
 }
