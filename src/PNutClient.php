@@ -70,7 +70,7 @@ class PNutClient
      * and then fall back to unencrypted if the server is not configure.
      *
      * @param string $serverAddress Address where the server is (for example an IP address or hostname).
-     * @param int $serverPort Port of where NUT server listen (default 3493).
+     * @param int $serverPort       Port of where NUT server listen (default 3493).
      * @return PNutClient           The current instance.
      *
      * @throws Exception\Feature\FeatureNotConfiguredException
@@ -108,7 +108,7 @@ class PNutClient
     /**
      * To make some request to the server with the PNutRequest class.
      *
-     * @return PNutRequest  A instance which allow requests to the server.
+     * @return PNutRequest  An instance which allow requests to the server.
      */
     public function request(): PNutRequest
     {
