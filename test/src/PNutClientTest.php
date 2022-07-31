@@ -17,18 +17,6 @@ final class PNutClientTest extends TestCase
         $this->assertInstanceOf(PNutClient::class, $client);
     }
 
-    public function testCanConnect(): void
-    {
-        $client = new PNutClient();
-        $client
-            ->setTimeout(PNutClientTest::TIMEOUT)
-            ->connect(PNutClientTest::ADDRESS);
-
-        $this->assertFalse($client->stream()->isEncrypt());
-
-        $client->request()->logout();
-    }
-
     public function testConnectionMetadata(): void
     {
         $client = new PNutClient();

@@ -4,6 +4,7 @@ namespace PNut\Stream;
 
 use PNut\Exception\Feature\FeatureNotConfiguredException;
 use PNut\Exception\Feature\FeatureNotSupportedException;
+use PNut\Exception\Request\ImpossibleSendRequestException;
 use PNut\Exception\Socket\UnableToConnectSocketException;
 use PNut\Exception\Ssl\AlreadySslModeException;
 use PNut\Exception\Ssl\SslHandShakeException;
@@ -40,6 +41,7 @@ class PNutStream
      * @throws FeatureNotSupportedException
      * @throws SslHandShakeException
      * @throws UnableToConnectSocketException
+     * @throws ImpossibleSendRequestException
      */
     public function __construct(
         private readonly string $address,
@@ -116,6 +118,7 @@ class PNutStream
      * @throws FeatureNotConfiguredException
      * @throws FeatureNotSupportedException
      * @throws SslHandShakeException
+     * @throws ImpossibleSendRequestException
      */
     private function trySetEncryption(bool $force): void
     {
@@ -223,12 +226,19 @@ class PNutStream
      *
      * To receive the response, use the "receive()" method.
      *
-     * @param string $command   The command send to NUT.
+     * @param string $command The command send to NUT.
      * @return $this            The current socket stream instance.
+     * @throws ImpossibleSendRequestException
      */
     public function send(string $command): PNutStream
     {
-        fwrite($this->stream, "{$command}\n");
+        set_error_handler(array($this, 'exception_error_handler'));
+        $hasWrite = @fwrite($this->stream, "{$command}\n");
+        restore_error_handler();
+
+        if (!$hasWrite) {
+            throw new ImpossibleSendRequestException($this);
+        }
 
         return $this;
     }
@@ -278,5 +288,37 @@ class PNutStream
     public function getServerVersion(): string
     {
         return $this->serverVersion;
+    }
+
+    public function logout(): void
+    {
+        $this->send("LOGOUT");
+    }
+
+    public function getAddress(): string
+    {
+        return $this->address;
+    }
+
+    public function getPort(): int
+    {
+        return $this->port;
+    }
+
+    private function exception_error_handler(
+        int $errno,
+        string $errstr,
+        string $errfile,
+        int $errline
+    ): bool
+    {
+        if (error_reporting()) {
+            throw new ImpossibleSendRequestException(
+                stream: $this,
+                code: $errno,
+                message: $errstr,
+            );
+        }
+        return true;
     }
 }

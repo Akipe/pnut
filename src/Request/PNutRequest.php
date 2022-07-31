@@ -2,6 +2,7 @@
 
 namespace PNut\Request;
 
+use PNut\Exception\Request\ImpossibleSendRequestException;
 use PNut\Exception\Ups\UnknownUpsException;
 use PNut\Exception\Variable\VariableNotSupportedException;
 use PNut\Response\PNutResponse;
@@ -17,6 +18,9 @@ class PNutRequest
     {
     }
 
+    /**
+     * @throws ImpossibleSendRequestException
+     */
     public function getProtocolVersion(): PNutResponse
     {
         $this->stream->send(
@@ -26,6 +30,9 @@ class PNutRequest
         return new PNutResponse($this->stream);
     }
 
+    /**
+     * @throws ImpossibleSendRequestException
+     */
     public function getServerInformation(): PNutResponse
     {
         $this->stream->send(
@@ -35,6 +42,9 @@ class PNutRequest
         return new PNutResponse($this->stream);
     }
 
+    /**
+     * @throws ImpossibleSendRequestException
+     */
     public function getProtocolActions(): PNutResponseList
     {
         $this->stream->send(
@@ -46,6 +56,7 @@ class PNutRequest
 
     /**
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getNumberLogins(string $ups): PNutResponse
     {
@@ -62,6 +73,7 @@ class PNutRequest
 
     /**
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getUpsDescription(string $ups): PNutResponse
     {
@@ -79,6 +91,7 @@ class PNutRequest
     /**
      * @throws VariableNotSupportedException
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getVariable(string $ups, string $name): PNutResponse
     {
@@ -97,6 +110,7 @@ class PNutRequest
     /**
      * @throws VariableNotSupportedException
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getVariableType(string $ups, string $name): PNutResponse
     {
@@ -115,6 +129,7 @@ class PNutRequest
     /**
      * @throws VariableNotSupportedException
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getVariableDescription(string $ups, string $name): PNutResponse
     {
@@ -132,6 +147,7 @@ class PNutRequest
 
     /**
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getUpsCommandDescription(string $ups, string $command): PNutResponse
     {
@@ -156,6 +172,9 @@ class PNutRequest
         return new PNutResponseList($this->stream);
     }*/
 
+    /**
+     * @throws ImpossibleSendRequestException
+     */
     public function listUps(): PNutResponseList
     {
         $this->stream->send(
@@ -167,6 +186,7 @@ class PNutRequest
 
     /**
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getAllVariables(string $ups): PNutResponseList
     {
@@ -183,6 +203,7 @@ class PNutRequest
 
     /**
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getAllEditableVariables(string $ups): PNutResponseList
     {
@@ -199,6 +220,7 @@ class PNutRequest
 
     /**
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getAllUpsCommands(string $ups): PNutResponseList
     {
@@ -216,6 +238,7 @@ class PNutRequest
     /**
      * @throws VariableNotSupportedException
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getVariableEnumeration(string $ups, string $name): PNutResponseList
     {
@@ -233,6 +256,7 @@ class PNutRequest
 
     /**
      * @throws UnknownUpsException
+     * @throws ImpossibleSendRequestException
      */
     public function getClients(string $ups): PNutResponseList
     {
@@ -249,9 +273,7 @@ class PNutRequest
 
     public function logout(): PNutResponse
     {
-        $this->stream->send(
-            "LOGOUT"
-        );
+        $this->stream->logout();
 
         return new PNutResponse($this->stream);
     }
