@@ -1,0 +1,22 @@
+version: '3.8'
+
+networks:
+  pnut_net:
+
+services:
+  pnut_php_cli:
+    container_name: pnut_php_cli_dev
+    build:
+      context: ./php-cli
+    user: "1000:1000"
+    tty: true
+    working_dir: /var/www/pnut
+    volumes:
+      - ./../:/var/www/pnut
+      - ./var/cache/composer:/.composer/cache
+      - ./var/cache/symfony:/.symfony/cache
+      - ./php-cli/conf/php.development.ini:/usr/local/etc/php/php.ini:ro
+    networks:
+      - pnut_net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

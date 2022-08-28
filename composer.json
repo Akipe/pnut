@@ -21,8 +21,13 @@
       "PNut\\": "src/"}
   },
   "scripts": {
+    "run-dev": "sudo docker-compose -f ./env/docker-compose.yml up -d",
+    "stop-dev": "sudo docker-compose -f ./env/docker-compose.yml down",
+    "build-dev": "sudo docker-compose -f ./env/docker-compose.yml build",
+    "cli-dev": "sudo docker exec --interactive --tty --user 1000:1000 pnut_php_cli_dev bash",
     "prepare-test": "sudo docker-compose -f ./test/app/docker-compose.yml up -d",
-    "test": "phpunit ./test/src",
-    "stop-test": "sudo docker-compose -f ./test/app/docker-compose.yml down"
+    "stop-test": "sudo docker-compose -f ./test/app/docker-compose.yml down",
+    "build-test": "sudo docker-compose -f ./test/app/docker-compose.yml build",
+    "test": "phpunit ./test/src"
   }
 }
