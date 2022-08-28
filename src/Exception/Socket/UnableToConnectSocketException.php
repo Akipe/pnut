@@ -1,10 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PNut\Exception\Socket;
 
 use Throwable;
+use Exception;
 
-class UnableToConnectSocketException extends \Exception
+class UnableToConnectSocketException extends Exception
 {
     public function __construct(string $socketMsg, int $socketCode, $code = 0, Throwable $previous = null)
     {
@@ -13,6 +16,6 @@ class UnableToConnectSocketException extends \Exception
 
     public function __toString(): string
     {
-        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+        return __CLASS__ . ": [$this->code]: $this->message\n";
     }
 }

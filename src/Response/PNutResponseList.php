@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PNut\Response;
 
@@ -20,7 +22,8 @@ class PNutResponseList extends PNutBaseResponse implements IPNutResponse
                 $key = parent::getPropertyName($response);
 
                 $result[$key] = $value;
-            } else if ($this->isHelpCommand($response)) {
+            }
+            elseif ($this->isHelpCommand($response)) {
                 return $this->getHelpResponse($response);
             } else {
                 $result[] = parent::getValueUnquoted($response);

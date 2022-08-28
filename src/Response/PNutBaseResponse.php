@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PNut\Response;
 
@@ -13,7 +15,7 @@ class PNutBaseResponse
         public readonly PNutStream $stream,
     )
     {
-        $this->rawResponse = $this->stream->receive(true);
+        $this->rawResponse = $this->stream->receive();
     }
 
     public function getRawResponseArray(bool $isRemoveProtocolMessages = true): array

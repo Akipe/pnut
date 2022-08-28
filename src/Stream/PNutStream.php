@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PNut\Stream;
 
@@ -9,6 +11,7 @@ use PNut\Exception\Socket\UnableToConnectSocketException;
 use PNut\Exception\Ssl\AlreadySslModeException;
 use PNut\Exception\Ssl\SslHandShakeException;
 use PNut\Request\PNutRequest;
+use Exception;
 
 class PNutStream
 {
@@ -26,7 +29,7 @@ class PNutStream
      * A socket stream class who manage the connection to the Network Ups Tools server.
      *
      * It allows to make low-level commands like send and receive messages.
-     * It is used by PNutRequest & PNutResponse for communicating to the server with the procotol of Network UPS Tools.
+     * It is used by PNutRequest & PNutResponse for communicating to the server with the protocol of Network UPS Tools.
      *
      * Documentation can be found at https://networkupstools.org/docs/developer-guide.chunked/ar01s09.html
      *
@@ -48,7 +51,7 @@ class PNutStream
         private readonly int    $port = PNutStream::DEFAULT_SERVER_PORT,
         bool                    $tryEncryption = true,
         bool                    $forceEncryption = false,
-        private int             $timeout = PNutStream::DEFAULT_TIMEOUT,
+        private readonly int    $timeout = PNutStream::DEFAULT_TIMEOUT,
     )
     {
         $this->errorCode = 0;
@@ -156,7 +159,7 @@ class PNutStream
                 throw new AlreadySslModeException();
             }
 
-            throw new \Exception("The stream is not encrypted");
+            throw new Exception("The stream is not encrypted");
         }
 
         $this->isEncrypt = false;
@@ -233,7 +236,7 @@ class PNutStream
     public function send(string $command): PNutStream
     {
         set_error_handler(array($this, 'exception_error_handler'));
-        $hasWrite = @fwrite($this->stream, "{$command}\n");
+        $hasWrite = @fwrite($this->stream, "$command\n");
         restore_error_handler();
 
         if (!$hasWrite) {
@@ -306,17 +309,17 @@ class PNutStream
     }
 
     private function exception_error_handler(
-        int $errno,
-        string $errstr,
-        string $errfile,
-        int $errline
+        int    $code,
+        string $message,
+        string $file,
+        int $line
     ): bool
     {
         if (error_reporting()) {
             throw new ImpossibleSendRequestException(
                 stream: $this,
-                code: $errno,
-                message: $errstr,
+                code: $code,
+                message: $message,
             );
         }
         return true;

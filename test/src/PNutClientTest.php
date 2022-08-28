@@ -7,8 +7,8 @@ use PNut\PNutClient;
 
 final class PNutClientTest extends TestCase
 {
-    const TIMEOUT = 4;
-    const ADDRESS = "127.0.0.1";
+    public const TIMEOUT = 4;
+    public const ADDRESS = "127.0.0.1";
 
     public function testCanBeCreated(): void
     {

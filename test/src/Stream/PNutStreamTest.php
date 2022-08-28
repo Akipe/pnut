@@ -1,9 +1,9 @@
-<?php declare(strict_types=1);
+<?php
 
-use PHPUnit\Framework\Error\Warning;
+declare(strict_types=1);
+
 use PHPUnit\Framework\TestCase;
 use PNut\Exception\Request\ImpossibleSendRequestException;
-use PNut\Exception\Socket\UnableToConnectSocketException;
 use PNut\Stream\PNutStream;
 
 final class PNutStreamTest extends TestCase

@@ -1,10 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PNut\Exception\Login;
 
 use Throwable;
+use Exception;
 
-class PasswordRequiredException extends \Exception
+class PasswordRequiredException extends Exception
 {
     public const PROTOCOL_MESSAGE = "";
 
@@ -15,6 +18,6 @@ class PasswordRequiredException extends \Exception
 
     public function __toString(): string
     {
-        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+        return __CLASS__ . ": [$this->code]: $this->message\n";
     }
 }

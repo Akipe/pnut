@@ -1,10 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PNut\Exception\Ups;
 
 use Throwable;
+use Exception;
 
-class UnknownUpsException extends \Exception
+class UnknownUpsException extends Exception
 {
     public const PROTOCOL_MESSAGE = "UNKNOWN-UPS";
 
@@ -15,6 +18,6 @@ class UnknownUpsException extends \Exception
 
     public function __toString(): string
     {
-        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+        return __CLASS__ . ": [$this->code]: $this->message\n";
     }
 }

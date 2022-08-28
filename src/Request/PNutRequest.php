@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PNut\Request;
 
@@ -61,7 +63,7 @@ class PNutRequest
     public function getNumberLogins(string $ups): PNutResponse
     {
         $this->stream->send(
-            "GET NUMLOGINS {$ups}"
+            "GET NUMLOGINS $ups"
         );
 
         $response = new PNutResponse($this->stream);
@@ -78,7 +80,7 @@ class PNutRequest
     public function getUpsDescription(string $ups): PNutResponse
     {
         $this->stream->send(
-            "GET UPSDESC {$ups}"
+            "GET UPSDESC $ups"
         );
 
         $response = new PNutResponse($this->stream);
@@ -96,7 +98,7 @@ class PNutRequest
     public function getVariable(string $ups, string $name): PNutResponse
     {
         $this->stream->send(
-            "GET VAR {$ups} {$name}"
+            "GET VAR $ups $name"
         );
 
         $response = new PNutResponse($this->stream);
@@ -115,7 +117,7 @@ class PNutRequest
     public function getVariableType(string $ups, string $name): PNutResponse
     {
         $this->stream->send(
-            "GET TYPE {$ups} {$name}"
+            "GET TYPE $ups $name"
         );
 
         $response = new PNutResponse($this->stream);
@@ -134,7 +136,7 @@ class PNutRequest
     public function getVariableDescription(string $ups, string $name): PNutResponse
     {
         $this->stream->send(
-            "GET DESC {$ups} {$name}"
+            "GET DESC $ups $name"
         );
 
         $response = new PNutResponse($this->stream);
@@ -152,7 +154,7 @@ class PNutRequest
     public function getUpsCommandDescription(string $ups, string $command): PNutResponse
     {
         $this->stream->send(
-            "GET CMDDESC {$ups} {$command}"
+            "GET CMDDESC $ups $command"
         );
 
         $response = new PNutResponse($this->stream);
@@ -191,7 +193,7 @@ class PNutRequest
     public function getAllVariables(string $ups): PNutResponseList
     {
         $this->stream->send(
-            "LIST VAR {$ups}"
+            "LIST VAR $ups"
         );
 
         $response = new PNutResponseList($this->stream);
@@ -208,7 +210,7 @@ class PNutRequest
     public function getAllEditableVariables(string $ups): PNutResponseList
     {
         $this->stream->send(
-            "LIST RW {$ups}"
+            "LIST RW $ups"
         );
 
         $response = new PNutResponseList($this->stream);
@@ -225,7 +227,7 @@ class PNutRequest
     public function getAllUpsCommands(string $ups): PNutResponseList
     {
         $this->stream->send(
-            "LIST CMD {$ups}"
+            "LIST CMD $ups"
         );
 
         $response = new PNutResponseList($this->stream);
@@ -243,7 +245,7 @@ class PNutRequest
     public function getVariableEnumeration(string $ups, string $name): PNutResponseList
     {
         $this->stream->send(
-            "LIST ENUM {$ups} {$name}"
+            "LIST ENUM $ups $name"
         );
 
         $response = new PNutResponseList($this->stream);
@@ -261,7 +263,7 @@ class PNutRequest
     public function getClients(string $ups): PNutResponseList
     {
         $this->stream->send(
-            "LIST CLIENT {$ups}"
+            "LIST CLIENT $ups"
         );
 
         $response = new PNutResponseList($this->stream);

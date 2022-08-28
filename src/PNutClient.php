@@ -1,7 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PNut;
 
+use PNut\Exception\Request\ImpossibleSendRequestException;
 use PNut\Request\PNutRequest;
 use PNut\Stream\PNutStream;
 
@@ -70,7 +73,7 @@ class PNutClient
      * and then fall back to unencrypted if the server is not configure.
      *
      * @param string $serverAddress Address where the server is (for example an IP address or hostname).
-     * @param int $serverPort       Port of where NUT server listen (default 3493).
+     * @param int $serverPort Port of where NUT server listen (default 3493).
      * @return PNutClient           The current instance.
      *
      * @throws Exception\Feature\FeatureNotConfiguredException
@@ -78,6 +81,7 @@ class PNutClient
      * @throws Exception\Socket\UnableToConnectSocketException
      * @throws Exception\Ssl\AlreadySslModeException
      * @throws Exception\Ssl\SslHandShakeException
+     * @throws ImpossibleSendRequestException
      */
     public function connect(
         string $serverAddress,

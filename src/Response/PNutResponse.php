@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace PNut\Response;
 
@@ -20,7 +22,7 @@ class PNutResponse extends PNutBaseResponse implements IPNutResponse
         }
 
         if ($this->isServerInfoResponse($response)) {
-            return str_replace(" - http://www.networkupstools.org/", "", $response);
+            return str_replace(" - https://www.networkupstools.org/", "", $response);
         }
 
         return parent::getValueUnquoted($response);
@@ -30,7 +32,7 @@ class PNutResponse extends PNutBaseResponse implements IPNutResponse
     {
         return
             str_contains($response, "Network UPS Tools upsd") &&
-            str_contains($response, "http://www.networkupstools.org/"
+            str_contains($response, "https://www.networkupstools.org/"
             );
     }
 }
